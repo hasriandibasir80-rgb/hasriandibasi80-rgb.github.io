@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Siklus Voucher - Manajemen Agen</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background-color: #f5f7fa;
+      padding: 10px;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .btn-edit {
+      background-color: #f39c12;
+      margin: 0 2px;
+      font-size: 13px;
+    }
+    .btn-edit:hover {
+      background-color: #e67e22;
+    }
+    .btn-delete {
+      background-color: #e74c3c;
+      font-size: 13px;
+    }
+    .btn-delete:hover {
+      background-color: #c0392b;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f1f1f1;
+      color: #333;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .summary {
+      margin: 20px 0;
+      padding: 15px;
+      background: #e8f4fc;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+    .tab {
+      overflow: hidden;
+      border: 1px solid #ccc;
+      background-color: #f1f1f1;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    .tab button {
+      background-color: inherit;
+      float: left;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 10px 16px;
+      transition: 0.3s;
+      font-size: 16px;
+      color: #333;
+      width: 25%;
+    }
+    .tab button:hover {
+      background-color: #ddd;
+    }
+    .tab button.active {
+      background-color: #3498db;
+      color: white;
+    }
+    .tabcontent {
+      display: none;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background-color: white;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .close {
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #aaa;
+    }
+    .close:hover {
+      color: black;
+    }
+
+    @media (max-width: 768px) {
+      input, button, th, td {
+        font-size: 14px;
+        padding: 8px;
+      }
+      .tab button {
+        width: 33.3%;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Siklus Voucher Agen</h1>
+
+    <!-- Tab Navigation -->
+    <div class="tab">
+      <button class="tablinks active" onclick="openTab(event, 'Input')">➕ Input Transaksi</button>
+      <button class="tablinks" onclick="openTab(event, 'PerAgen')">📋 Per Agen</button>
+      <button class="tablinks" onclick="openTab(event, 'Rekapan')">📈 Rekapan Umum</button>
+      <button class="tablinks" onclick="openTab(event, 'TambahAgen')">👤 Tambah Agen</button>
+    </div>
+
+    <!-- Tab 1: Input -->
+    <div id="Input" class="tabcontent" style="display: block;">
+      <h2>Input Transaksi</h2>
+      <div class="form-group">
+        <label>Agen</label>
+        <select id="agenSelect"></select>
+      </div>
+      <div class="form-group">
+        <label>Tanggal Pengambilan</label>
+        <input type="date" id="tglAmbil" />
+      </div>
+      <div class="form-group">
+        <label>V3 (Jumlah)</label>
+        <input type="number" id="jmlV3" min="0" value="0" />
+      </div>
+      <div class="form-group">
+        <label>V5 (Jumlah)</label>
+        <input type="number" id="jmlV5" min="0" value="0" />
+      </div>
+      <div class="form-group">
+        <label>Tanggal Setoran</label>
+        <input type="date" id="tglSetor" />
+      </div>
+      <button onclick="tambahTransaksi()">Simpan Transaksi</button>
+    </div>
+
+    <!-- Tab 2: Ringkasan Per Agen -->
+    <div id="PerAgen" class="tabcontent">
+      <h2>Ringkasan Per Agen</h2>
+      <select id="filterAgen" onchange="tampilkanPerAgen()"></select>
+      <div id="detailAgen"></div>
+    </div>
+
+    <!-- Tab 3: Rekapan Keseluruhan -->
+    <div id="Rekapan" class="tabcontent">
+      <h2>Rekapan Pengambilan Voucher (Semua Agen)</h2>
+      <div class="summary" id="summaryTotal"></div>
+      <table id="tabelRekapan">
+        <thead>
+          <tr>
+            <th>Agen</th>
+            <th>Total V3</th>
+            <th>Total V5</th>
+            <th>Total Tagihan</th>
+            <th>Total Setoran</th>
+            <th>Saldo</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Tab 4: Tambah Agen -->
+    <div id="TambahAgen" class="tabcontent">
+      <h2>Tambah Agen Baru</h2>
+      <div class="form-group">
+        <label>Nama Agen Baru</label>
+        <input type="text" id="namaAgenBaru" placeholder="Contoh: Ibu Siti" />
+      </div>
+      <button onclick="tambahAgenBaru()">Tambahkan Agen</button>
+    </div>
+  </div>
+
+  <!-- Modal Edit -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="tutupModal()">&times;</span>
+      <h2>Edit Transaksi</h2>
+      <input type="hidden" id="editId" />
+      <div class="form-group">
+        <label>Tanggal Pengambilan</label>
+        <input type="date" id="editTglAmbil" />
+      </div>
+      <div class="form-group">
+        <label>V3 (Jumlah)</label>
+        <input type="number" id="editJmlV3" min="0" value="0" />
+      </div>
+      <div class="form-group">
+        <label>V5 (Jumlah)</label>
+        <input type="number" id="editJmlV5" min="0" value="0" />
+      </div>
+      <div class="form-group">
+        <label>Tanggal Setoran</label>
+        <input type="date" id="editTglSetor" />
+      </div>
+      <button onclick="simpanEdit()">Simpan Perubahan</button>
+    </div>
+  </div>
+
+  <script>
+    // Harga voucher
+    const harga = { v3: 2550, v5: 4250 };
+
+    // Daftar agen awal
+    let daftarAgen = [
+      "Radiah", "Ibu Rostini", "Ibu Mila", "Mira", "Mama Arham", "Jusrawira",
+      "Ibu Putri", "Ibu Ardilla", "Pak Sulaeman", "Ibu Ira", "Pak Jusriadi",
+      "Pak Risman", "Afzal", "Ibu Rika", "Ibu Ayu", "Ibu Hasna", "Ibu Naila",
+      "Ibu Asnita", "Bang Adi", "Ibu Ennar"
+    ];
+
+    // Data transaksi
+    let transaksi = JSON.parse(localStorage.getItem("transaksi")) || {};
+
+    // Inisialisasi
+    function init() {
+      if (localStorage.getItem("daftarAgen")) {
+        daftarAgen = JSON.parse(localStorage.getItem("daftarAgen"));
+      }
+      isiDropdown();
+    }
+
+    // Simpan ke localStorage
+    function simpanKeStorage() {
+      localStorage.setItem("transaksi", JSON.stringify(transaksi));
+      localStorage.setItem("daftarAgen", JSON.stringify(daftarAgen));
+    }
+
+    // Isi dropdown agen
+    function isiDropdown() {
+      const selects = ["agenSelect", "filterAgen"];
+      selects.forEach(id => {
+        const el = document.getElementById(id);
+        el.innerHTML = "";
+        daftarAgen.forEach(agen => {
+          const opt = document.createElement("option");
+          opt.value = agen;
+          opt.textContent = agen;
+          el.appendChild(opt);
+        });
+      });
+      tampilkanPerAgen();
+      updateRekapan();
+    }
+
+    // Tambah transaksi
+    function tambahTransaksi() {
+      const agen = document.getElementById("agenSelect").value;
+      const tglAmbil = document.getElementById("tglAmbil").value;
+      const jmlV3 = parseInt(document.getElementById("jmlV3").value) || 0;
+      const jmlV5 = parseInt(document.getElementById("jmlV5").value) || 0;
+      const tglSetor = document.getElementById("tglSetor").value;
+
+      if (!tglAmbil || (jmlV3 === 0 && jmlV5 === 0)) {
+        alert("Isi tanggal pengambilan dan minimal satu voucher.");
+        return;
+      }
+
+      const id = new Date().getTime();
+      const tagihan = jmlV3 * harga.v3 + jmlV5 * harga.v5;
+
+      if (!transaksi[agen]) transaksi[agen] = [];
+      transaksi[agen].push({
+        id, tglAmbil, jmlV3, jmlV5, tglSetor, tagihan
+      });
+
+      simpanKeStorage();
+      alert("Transaksi berhasil disimpan!");
+      resetForm();
+      updateRekapan();
+      tampilkanPerAgen();
+    }
+
+    // Reset form input
+    function resetForm() {
+      document.getElementById("jmlV3").value = "0";
+      document.getElementById("jmlV5").value = "0";
+      document.getElementById("tglAmbil").value = "";
+      document.getElementById("tglSetor").value = "";
+    }
+
+    // Tampilkan detail per agen + tombol edit & hapus
+    function tampilkanPerAgen() {
+      const agen = document.getElementById("filterAgen").value;
+      const div = document.getElementById("detailAgen");
+      const data = transaksi[agen] || [];
+
+      let html = `<p><strong>Total Transaksi: ${data.length}</strong></p>`;
+      if (data.length === 0) {
+        html += "<p>Tidak ada transaksi.</p>";
+      } else {
+        html += `
+        <table>
+          <tr>
+            <th>Tanggal Ambil</th>
+            <th>V3</th>
+            <th>V5</th>
+            <th>Tagihan</th>
+            <th>Tanggal Setor</th>
+            <th>Aksi</th>
+          </tr>`;
+        data.forEach(t => {
+          const tagihan = (t.jmlV3 * harga.v3 + t.jmlV5 * harga.v5).toLocaleString();
+          html += `
+          <tr>
+            <td>${t.tglAmbil}</td>
+            <td>${t.jmlV3}</td>
+            <td>${t.jmlV5}</td>
+            <td>Rp ${tagihan}</td>
+            <td>${t.tglSetor || '-'}</td>
+            <td>
+              <button class="btn-edit" onclick="bukaModalEdit('${agen}', ${t.id})">Edit</button>
+              <button class="btn-delete" onclick="hapusTransaksi('${agen}', ${t.id})">Hapus</button>
+            </td>
+          </tr>`;
+        });
+        html += `</table>`;
+      }
+      div.innerHTML = html;
+    }
+
+    // Buka modal edit
+    function bukaModalEdit(agen, id) {
+      const trans = transaksi[agen].find(t => t.id === id);
+      if (!trans) return;
+
+      document.getElementById("editId").value = id;
+      document.getElementById("editTglAmbil").value = trans.tglAmbil;
+      document.getElementById("editJmlV3").value = trans.jmlV3;
+      document.getElementById("editJmlV5").value = trans.jmlV5;
+      document.getElementById("editTglSetor").value = trans.tglSetor || "";
+
+      document.getElementById("editModal").style.display = "block";
+    }
+
+    // Tutup modal
+    function tutupModal() {
+      document.getElementById("editModal").style.display = "none";
+    }
+
+    // Simpan perubahan edit
+    function simpanEdit() {
+      const agen = document.getElementById("filterAgen").value;
+      const id = parseInt(document.getElementById("editId").value);
+      const tglAmbil = document.getElementById("editTglAmbil").value;
+      const jmlV3 = parseInt(document.getElementById("editJmlV3").value) || 0;
+      const jmlV5 = parseInt(document.getElementById("editJmlV5").value) || 0;
+      const tglSetor = document.getElementById("editTglSetor").value;
+
+      if (!tglAmbil || (jmlV3 === 0 && jmlV5 === 0)) {
+        alert("Tanggal pengambilan dan jumlah voucher harus valid.");
+        return;
+      }
+
+      const index = transaksi[agen].findIndex(t => t.id === id);
+      if (index !== -1) {
+        const tagihan = jmlV3 * harga.v3 + jmlV5 * harga.v5;
+        transaksi[agen][index] = { id, tglAmbil, jmlV3, jmlV5, tglSetor, tagihan };
+        simpanKeStorage();
+        alert("Transaksi berhasil diperbarui!");
+        tutupModal();
+        tampilkanPerAgen();
+        updateRekapan();
+      }
+    }
+
+    // Hapus transaksi
+    function hapusTransaksi(agen, id) {
+      if (!confirm("Yakin ingin menghapus transaksi ini?")) return;
+      transaksi[agen] = transaksi[agen].filter(t => t.id !== id);
+      if (transaksi[agen].length === 0) delete transaksi[agen];
+      simpanKeStorage();
+      alert("Transaksi dihapus.");
+      tampilkanPerAgen();
+      updateRekapan();
+    }
+
+    // Update rekapan keseluruhan
+    function updateRekapan() {
+      let totalV3 = 0, totalV5 = 0, totalTagihan = 0, totalSetoran = 0;
+      const tbody = document.querySelector("#tabelRekapan tbody");
+      tbody.innerHTML = "";
+
+      daftarAgen.forEach(agen => {
+        const data = transaksi[agen] || [];
+        let sumV3 = 0, sumV5 = 0, sumTagihan = 0, sumSetor = 0;
+
+        data.forEach(t => {
+          sumV3 += t.jmlV3;
+          sumV5 += t.jmlV5;
+          sumTagihan += t.tagihan;
+          if (t.tglSetor) sumSetor += t.tagihan;
+        });
+
+        totalV3 += sumV3;
+        totalV5 += sumV5;
+        totalTagihan += sumTagihan;
+        totalSetoran += sumSetor;
+
+        const saldo = sumTagihan - sumSetor;
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${agen}</td>
+          <td>${sumV3}</td>
+          <td>${sumV5}</td>
+          <td>Rp ${sumTagihan.toLocaleString()}</td>
+          <td>Rp ${sumSetor.toLocaleString()}</td>
+          <td>Rp ${saldo.toLocaleString()}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.getElementById("summaryTotal").innerHTML = `
+        <p>🔹 Total V3: <strong>${totalV3}</strong> | Total V5: <strong>${totalV5}</strong></p>
+        <p>🔹 Total Tagihan: <strong>Rp ${totalTagihan.toLocaleString()}</strong></p>
+        <p>🔹 Total Setoran: <strong>Rp ${totalSetoran.toLocaleString()}</strong></p>
+        <p>🔹 Sisa Belum Setor: <strong>Rp ${(totalTagihan - totalSetoran).toLocaleString()}</strong></p>
+      `;
+    }
+
+    // Tambah agen baru
+    function tambahAgenBaru() {
+      const nama = document.getElementById("namaAgenBaru").value.trim();
+      if (!nama) {
+        alert("Masukkan nama agen!");
+        return;
+      }
+      if (daftarAgen.includes(nama)) {
+        alert("Agen sudah ada!");
+        return;
+      }
+      daftarAgen.push(nama);
+      transaksi[nama] = [];
+      simpanKeStorage();
+      document.getElementById("namaAgenBaru").value = "";
+      alert(`Agen ${nama} berhasil ditambahkan!`);
+      isiDropdown();
+    }
+
+    // Tab system
+    function openTab(evt, tabName) {
+      const tabs = document.getElementsByClassName("tabcontent");
+      for (let i = 0; i < tabs.length; i++) {
+        tabs[i].style.display = "none";
+      }
+      const links = document.getElementsByClassName("tablinks");
+      for (let i = 0; i < links.length; i++) {
+        links[i].className = links[i].className.replace(" active", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById("editModal");
+      if (event.target === modal) {
+        tutupModal();
+      }
+    };
+
+    // Load saat halaman siap
+    window.onload = init;
+  </script>
+</body>
+</html>
